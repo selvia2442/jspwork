@@ -53,7 +53,7 @@
 		try{
 			String query = " update t_user	\n"+
 						" set win_count=win_count+1, lose_count=lose_count+1,	last_play_time=now()		\n"+
-						"	where user_id='"+win_id+"'	\n" ;
+						"	where user_id="+win_id+"	\n" ;
 				  
 			PreparedStatement pStmt = clist.setPStmt(conn, query);
 			if (pStmt == null) {
@@ -76,7 +76,7 @@
 		try{
 			String query = " update t_user	\n"+
 						" set win_count=win_count+1, lose_count=lose_count+1,	last_play_time=now()		\n"+
-						"	where user_id='"+lose_id+"'	\n" ;
+						"	where user_id="+lose_id+"	\n" ;
 				  
 			PreparedStatement pStmt = clist.setPStmt(conn, query);
 			if (pStmt == null) {
