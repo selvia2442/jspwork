@@ -1,0 +1,19 @@
+package battle20q;
+
+import wemoney.PagingBean;
+
+public class PagingUtil {
+	public static PagingBean setPagingInfo(PagingBean paging){
+		
+		paging.setStartNum(paging.getTotalCount() - (paging.getNowPage()-1) * paging.getCountPerPage());
+		
+		
+		//시작 seq
+		paging.setStartseq(paging.getTotalCount()-paging.getStartNum()); 
+		//종료 seq
+		paging.setEndseq(paging.getTotalCount()-paging.getStartNum()+paging.getCountPerPage());
+		
+		
+		return paging;
+	}
+}

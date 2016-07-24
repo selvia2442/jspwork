@@ -1,0 +1,57 @@
+<%@ page contentType="text/html;charset=utf-8"
+	import="java.sql.*, java.util.*, java.lang.*, battle20q.*, javax.json.*"
+%><jsp:useBean id="dbcon" scope="request" class="battle20q.connectDB"/><jsp:useBean id="clist" scope="request" class="wemoney.cmnListbean"/><%
+	request.setCharacterEncoding("utf-8");
+	Hashtable listdata = null;  // 조회된 데이터용 Hashtable
+	
+	//서버에서 변수 받기	 
+	String notice_idx = cmnUtil.NVL(request.getParameter("notice_idx"),""); 
+	
+	int result_code = 0;
+	String result_msg = "성공";
+	
+	Map<String, String> m = new HashMap<String, String>();
+	JsonBuilderFactory factory = Json.createBuilderFactory(m);
+	JsonObjectBuilder json_main = factory.createObjectBuilder();
+	JsonObjectBuilder json_obj = factory.createObjectBuilder(); //MAP
+	
+
+	Connection conn = dbcon.getConnection(); 
+	if (conn == null) {   
+		result_code = -100;
+		result_msg = cmnUtil.getErrorMessage(result_code);
+	}
+	
+	String content = "";
+	if(result_code==0)
+	{
+		String query = 
+						" SELECT content						\n" +
+						"   FROM t_notice						\n" +
+						" where notice_idx="+notice_idx+"		\n" ;
+	
+		listdata = clist.getAllcnt(conn, query); // (Connection, 쿼리문), 전체 데이터 카운터겸용
+		int totalrow = clist.getTotalrows();         // 전체 레코드수
+		if(clist.isError())
+		{
+			result_code = -99;
+			result_msg = cmnUtil.getErrorMessage(result_code, clist.getErrorMessage());
+		}
+		else{			
+			
+			if(totalrow!=0)
+			{
+				content = listdata.get(new Integer(0)).toString();
+			}
+		}
+			
+	}
+	
+	if(result_code!=-100)
+	{
+		dbcon.conClose(conn);	
+	}
+	
+	out.print(content);
+	
+%>

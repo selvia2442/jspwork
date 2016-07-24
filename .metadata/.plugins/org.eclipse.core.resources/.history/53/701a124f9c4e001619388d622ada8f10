@@ -1,0 +1,119 @@
+import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
+
+public class connectDBwrite {
+	private FileOutputStream writer;
+
+	public String todaystr = null;
+	public String nowtimestr = null;
+	
+	public String logdir = "C:\\tomcat_log\\";  //로컬 테스트시 - 서버로 변경시 수정할것
+
+	public String testcode() {
+		return "test ok!!";
+	}
+
+	public void writeln(String log) {
+	
+		try {
+			todaystr = loadDate("yyyyMMdd");  //DateUtil.getYYYYMMDD();
+			RandomAccessFile raf;
+			nowtimestr = loadDate("HHmmss");  //DateUtil.getNowTime();
+
+			String line = ""; 
+
+			raf = new RandomAccessFile(logdir + todaystr + ".log", "rw");
+			raf.seek(raf.length());
+
+			writer = new FileOutputStream(raf.getFD());
+
+			line = "[" + nowtimestr + "] " + log +"\r\n";
+			
+			writer.write(line.getBytes());
+			raf.close();
+		} catch (Exception e) {	}
+	}
+
+	public void writeLog(String log) {
+		
+		try {
+			todaystr = loadDate("yyyyMMdd");  
+			RandomAccessFile raf;
+			nowtimestr = loadDate("HHmmss"); 
+
+			String line = ""; 
+
+			raf = new RandomAccessFile(logdir + todaystr + ".txt", "rw");
+			raf.seek(raf.length());
+
+			writer = new FileOutputStream(raf.getFD());
+
+			line = "[" + nowtimestr + "] " + log +"\r\n";
+			
+			writer.write(line.getBytes());
+			raf.close();
+		} catch (Exception e) {	}
+	}
+
+	public void writeSqlLog(String log) {
+		
+		try {
+			todaystr = loadDate("yyyyMMdd");  
+			RandomAccessFile raf;
+			nowtimestr = loadDate("HHmmss"); 
+
+			String line = ""; 
+
+			raf = new RandomAccessFile(logdir + todaystr + "_sql.txt", "rw");
+			raf.seek(raf.length());
+
+			writer = new FileOutputStream(raf.getFD());
+
+			line = "[" + nowtimestr + "] " + log +"\r\n";
+			
+			writer.write(line.getBytes());
+			raf.close();
+		} catch (Exception e) {	}
+	}
+
+	public void writeHashLog(String log) {
+		
+		try {
+			todaystr = loadDate("yyyyMMdd");  
+			RandomAccessFile raf;
+			nowtimestr = loadDate("HHmmss"); 
+
+			String line = ""; 
+
+			raf = new RandomAccessFile(logdir + todaystr + "hash.txt", "rw");
+			raf.seek(raf.length());
+
+			writer = new FileOutputStream(raf.getFD());
+
+			line = "[" + nowtimestr + "] " + log +"\r\n";
+			
+			writer.write(line.getBytes());
+			raf.close();
+		} catch (Exception e) {	}
+	}
+
+	private String loadDate(String date_type) throws Exception {
+
+		Calendar calendar = Calendar.getInstance(Locale.KOREAN);
+		TimeZone timezone = calendar.getTimeZone();
+		calendar = Calendar.getInstance(timezone);
+
+		Date date = calendar.getTime();
+
+		SimpleDateFormat sdf = new SimpleDateFormat(date_type,Locale.KOREAN);
+		sdf.setTimeZone(timezone);
+
+		return sdf.format(date);
+	}
+}

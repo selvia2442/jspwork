@@ -1,0 +1,84 @@
+<%@ page contentType="text/html;charset=utf-8"
+	import="java.sql.*, java.util.*, java.lang.*, battle20q.*, javax.json.*"
+%><jsp:useBean id="dbcon" scope="request" class="battle20q.connectDB"/><jsp:useBean id="clist" scope="request" class="battle20q.connectListbean"/><%
+	request.setCharacterEncoding("utf-8");
+	Hashtable listdata = null;  // 조회된 데이터용 Hashtable
+	
+	//서버에서 변수 받기	 
+	String room_no = cmnUtil.NVL(request.getParameter("room_no"),"");  
+	String game_no = cmnUtil.NVL(request.getParameter("game_no"),"");  
+	String answer = cmnUtil.NVL(request.getParameter("answer"),"");  
+	String player_q = cmnUtil.NVL(request.getParameter("player_q"),"");  
+	String player_a = cmnUtil.NVL(request.getParameter("player_a"),"");  
+	
+
+	int result_code = 0;
+	String result_msg = "성공";
+	String result_type = "map";
+	
+	Map<String, String> m = new HashMap<String, String>();
+	JsonBuilderFactory factory = Json.createBuilderFactory(m);
+	JsonObjectBuilder json_main = factory.createObjectBuilder();
+	JsonObjectBuilder json_obj = factory.createObjectBuilder(); //MAP
+	
+
+	Connection conn = dbcon.getConnection(); 
+	if (conn == null) {   
+		result_code = -100;
+		result_msg = cmnUtil.getErrorMessage(result_code);
+	}
+	
+	if(result_code==0)
+	{
+		try{
+			String query = " insert into t_game	\n" +
+					"(room_no, game_no, answer, player_q, player_a, create_date) values"+
+					" ("+room_no+", "+game_no+", '"+answer+"', '"+player_q+"','"+player_a+"',  now())";
+				  
+			PreparedStatement pStmt = clist.setPStmt(conn, query, Statement.RETURN_GENERATED_KEYS);
+			if (pStmt == null) {
+				result_code = -99;
+				result_msg = cmnUtil.getErrorMessage(result_code, 2, clist.getErrorMessage());		
+			}
+			else{
+				int ret = pStmt.executeUpdate();
+				if(ret!=-1){
+					try{
+						ResultSet tmp_rs = pStmt.getGeneratedKeys();
+						if (tmp_rs.next()) {
+							int no = tmp_rs.getInt(1);
+							json_obj.add("game_idx", Integer.toString(no));
+						} else {
+						    // do what you have to do
+						}
+
+					}catch(Exception ex){
+						result_code = -99;
+						result_msg = cmnUtil.getErrorMessage(result_code, 1, ex.getMessage());
+					}
+				}
+				else{
+					result_code = -99;
+					result_msg = cmnUtil.getErrorMessage(result_code, 3, "게임 생성에 실패하였습니다.");
+				}
+				pStmt.close();
+			}
+		}catch(Exception ex){
+			result_code = -99;
+			result_msg = cmnUtil.getErrorMessage(result_code, 2, ex.getMessage());
+		}
+	}
+	
+	if(result_code!=-100)
+	{
+		dbcon.conClose(conn);	
+	}
+	
+	json_main.add("resulttype", result_type);
+	json_main.add("result", Integer.toString(result_code));
+	json_main.add("msg", result_msg);
+	json_main.add("map", json_obj); //map
+	
+	out.print(json_main.build().toString());
+	
+%>
